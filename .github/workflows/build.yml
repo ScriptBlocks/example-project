@@ -49,8 +49,8 @@ jobs:
     - name: Build executable (Windows)
       if: runner.os == 'Windows'
       run: |
-        mkdir -p build/${{ runner.os }}
-        pyinstaller --distpath build/${{ runner.os }} --noconsole main.py
+        mkdir -p build/windows
+        pyinstaller --distpath build/windows --noconsole main.py
       shell: pwsh
 
     - name: List build directory

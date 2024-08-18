@@ -40,22 +40,40 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: Build executable
+    - name: Build executable (Linux/macOS)
+      if: runner.os != 'Windows'
       run: |
-        if [ $RUNNER_OS = 'Windows' ]; then
-          pyinstaller --onefile --noconsole main.py
-        else
-          pyinstaller --onefile main.py
-        fi
+        mkdir -p build/${{ runner.os }}
+        pyinstaller --distpath build/${{ runner.os }} main.py
+
+    - name: Build executable (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mkdir -p build/${{ runner.os }}
+        pyinstaller --distpath build/${{ runner.os }} --noconsole main.py
+      shell: pwsh
+
+    - name: List build directory
+      run: ls -la build/${{ runner.os }}
       shell: bash
 
-    - name: List dist directory
-      run: ls -la dist/
-      shell: bash
-
-    - name: Upload build artifacts
+    - name: Upload Linux artifacts
+      if: runner.os == 'Linux'
       uses: actions/upload-artifact@v3
       with:
-        name: built-executable
-        path: dist/
-        if-no-files-found: error
+        name: linux-executable
+        path: build/linux/
+
+    - name: Upload Windows artifacts
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-executable
+        path: build/windows/
+
+    - name: Upload macOS artifacts
+      if: runner.os == 'macOS'
+      uses: actions/upload-artifact@v3
+      with:
+        name: macos-executable
+        path: build/macos/

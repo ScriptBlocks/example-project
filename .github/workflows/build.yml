@@ -30,6 +30,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyinstaller
 
+    - name: Clone ScriptBlocks repository
+      run: |
+        git clone https://github.com/ScriptBlocks/ScriptBlocks.py.git
+        cd ScriptBlocks.py
+        python setup.py install
+
     - name: Install additional dependencies
       run: |
         pip install -r requirements.txt

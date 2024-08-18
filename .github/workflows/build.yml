@@ -43,7 +43,7 @@ jobs:
     - name: Build executable
       run: |
         if [[ $RUNNER_OS == 'Windows' ]]; then
-          pyinstaller --onefile --noconsole your_script.py
+          pyinstaller --onefile --noconsole main.py
         else
           pyinstaller --onefile your_script.py
         fi

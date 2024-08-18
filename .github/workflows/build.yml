@@ -10,11 +10,12 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: [3.9]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Checkout code
@@ -40,38 +41,37 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: Build executable (Linux/macOS)
-      if: runner.os != 'Windows'
+    - name: Build executable
       run: |
         mkdir -p build/${{ runner.os }}
-        pyinstaller --distpath build/${{ runner.os }} main.py
-
-    - name: Build executable (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        mkdir -p build/windows
-        pyinstaller --distpath build/windows --noconsole main.py
-      shell: pwsh
+        if [ $RUNNER_OS == 'Windows' ]; then
+          pyinstaller --distpath build/windows --noconsole main.py
+        elif [ $RUNNER_OS == 'Linux' ]; then
+          pyinstaller --distpath build/linux main.py
+        elif [ $RUNNER_OS == 'macOS' ]; then
+          pyinstaller --distpath build/macos main.py
+        fi
+      shell: bash
 
     - name: List build directory
       run: ls -la build/${{ runner.os }}
       shell: bash
 
-    - name: Upload Linux artifacts
+    - name: Upload artifacts
       if: runner.os == 'Linux'
       uses: actions/upload-artifact@v3
       with:
         name: linux-executable
         path: build/linux/
 
-    - name: Upload Windows artifacts
+    - name: Upload artifacts
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v3
       with:
         name: windows-executable
         path: build/windows/
 
-    - name: Upload macOS artifacts
+    - name: Upload artifacts
       if: runner.os == 'macOS'
       uses: actions/upload-artifact@v3
       with:

@@ -31,6 +31,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyinstaller
 
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
     - name: Clone ScriptBlocks repository
       run: |
         git clone https://github.com/ScriptBlocks/ScriptBlocks.py.git
@@ -43,37 +48,22 @@ jobs:
 
     - name: Build executable
       run: |
-        mkdir -p build/${{ runner.os }}
-        if [ $RUNNER_OS == 'Windows' ]; then
+        mkdir -p build/${{ matrix.os }}
+        if [[ "$RUNNER_OS" == 'Windows' ]]; then
           pyinstaller --distpath build/windows --noconsole main.py
-        elif [ $RUNNER_OS == 'Linux' ]; then
+        elif [[ "$RUNNER_OS" == 'Linux' ]]; then
           pyinstaller --distpath build/linux main.py
-        elif [ $RUNNER_OS == 'macOS' ]; then
+        elif [[ "$RUNNER_OS" == 'macOS' ]]; then
           pyinstaller --distpath build/macos main.py
         fi
       shell: bash
 
     - name: List build directory
-      run: ls -la build/${{ runner.os }}
+      run: ls -la build/${{ matrix.os }}
       shell: bash
 
     - name: Upload artifacts
-      if: runner.os == 'Linux'
       uses: actions/upload-artifact@v3
       with:
-        name: linux-executable
-        path: build/linux/
-
-    - name: Upload artifacts
-      if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v3
-      with:
-        name: windows-executable
-        path: build/windows/
-
-    - name: Upload artifacts
-      if: runner.os == 'macOS'
-      uses: actions/upload-artifact@v3
-      with:
-        name: macos-executable
-        path: build/macos/
+        name: ${{ matrix.os }}-executable
+        path: build/${{ matrix.os }}/

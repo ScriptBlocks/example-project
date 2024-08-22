@@ -31,10 +31,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyinstaller
 
-    - name: Install Poetry
+    - name: Install Poetry (Windows only)
+      if: matrix.os == 'windows-latest'
       run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+        $env:Path += ";$env:USERPROFILE\.local\bin"
+      shell: powershell
 
     - name: Clone ScriptBlocks repository
       run: |

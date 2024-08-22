@@ -34,8 +34,12 @@ jobs:
     - name: Install Poetry (Windows only)
       if: matrix.os == 'windows-latest'
       run: |
-        (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+        Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing -OutFile install-poetry.py
+        python install-poetry.py
         $env:Path += ";$env:USERPROFILE\.local\bin"
+        echo "Poetry path: $env:USERPROFILE\.local\bin"
+        poetry --version
       shell: powershell
 
     - name: Clone ScriptBlocks repository
